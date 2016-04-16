@@ -1,0 +1,23 @@
+ If yaourt asks too much...
+
+If you fed up with these questions asked all the time by yaourt:
+Edit PKGBUILD ? [Y/n] ("A" to abort)
+Edit <pkg_name>.install ? [Y/n] ("A" to abort)
+Continue building <pkg_name> ? [Y/n]
+
+The simple solution is to create a .yaourtrc under your home directory and configure yaourt to your taste. You can use the global /etc/yaourtrc file as a sample:
+
+cp /etc/yaourtrc ~/.yaourtrc
+
+Edit .yaourtrc to your liking according to http://archlinux.fr/man/yaourtrc.5.html
+
+I simply edited two lines:
+
+BUILD_NOCONFIRM=1
+EDITFILES=0
+
+These two will prevent yaourt to ask for editing anything and for continuing the build, it will skip these steps and will build the packages for you automatically. Still it will leave you some manual controls not to install anything unintentionally:
+
+    When you do system upgrade ( yaourt -Syua ), it will tell you what packages are to be installed and will ask "Continue upgrade ? [Y/n]".
+
+    It will always ask the last question for installing a package after building it: "Proceed with installation? [Y/n]". 
