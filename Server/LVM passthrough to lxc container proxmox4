@@ -1,0 +1,52 @@
+- Unter dem Host (proxmox4) die Festplatte partitionieren (als LVM)
+- pvcreate für die lvm partition
+- vgcreate für die partition und dem namen der Gruppe
+- lvcreate ein neues LVM laufwerk
+
+(um mehrere Festplatten oder partitionen einem vg hinzuzufügen: vgextend vggruppe /dev/partition)
+
+die LVM Partition nach lxc durchreichen:
+
+z.b.: /dev/mapper/nas-lvnas oder /dev/nas/lvnas
+
+. Find devices' major & minor ID (need both dev + partition for HDD)
+# ls -al /dev/nas/lvnas
+lrwxrwxrwx 1 root root 7 Apr 15 17:33 /dev/nas/lvnas -> ../dm-3
+# ls -al /dev/dm-3
+brw-rw---- 1 root disk 252, 3 Apr 15 17:33 /dev/dm-3
+
+hat's 252,3 for the /dev/dm-3 container symlinked to /dev/nas/lvnas (lvm device)
+
+2. add the following to container conf file: (see man pct.conf, /etc/pve/lxc for proxmox)
+
+lxc.aa_profile = lxc-container-default-with-mounting
+lxc.cgroup.devices.allow = b 252:3 rwm
+
+3. Make sure apparmor will allow your configuration
+in /etc/apparmor.d/lxc/lxc-container-default-with-mounting
+ ...
+ mount options=(rw, bind),
+ mount fstype=[desired fstype], (e.g. ext4, ext*, nfs, btrfs etc.)
+ ...
+
+Reload apparmor:
+/etc/init.d/apparmor reload
+
+4. You need to make a node in the container to see the device (do in container)
+# mknod -m 666 /dev/dm-3 b 252 3
+
+# ln -s /dev/dm-3 /dev/mapper/nas-lvnas 
+
+But that isn't persistent;
+So create /var/lib/lxc/${VMID}/mount-hook.sh (on the host)
+Add the commands to the script:
+
+#!/bin/sh
+mknod -m 777 ${LXC_ROOTFS_MOUNT}/dev/dm-3 b 252 3
+
+Make executable! (chmod +x)
+Then extend the container conf file with the script to autorun:
+
+lxc.autodev: 1
+lxc.hook.autodev: /var/lib/lxc/${VMID}/mount-hook.sh
+
