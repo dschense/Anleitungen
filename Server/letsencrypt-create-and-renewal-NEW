@@ -6,6 +6,7 @@ You need nginx to answer on port 80 on all the domains you want a certificate fo
 Then we invoke the letsencrypt command, telling the tool to write the challenge files in the directory we used as a root in the nginx configuration.
 
 I redirect all HTTP requests on HTTPS, so my nginx config looks like :
+When running Ajenti: /etc/nginx.custom.d/letsencrypt.conf
 
 server {
   listen              80;
