@@ -1,0 +1,39 @@
+Ein verzeichnis für Scripte anlegen:
+
+mkdir /scripte
+mkdir /scripte/pushover
+
+neues script:
+
+nano /scripte/pushover/ssh-login.sh
+
+dort folgendes reinkopieren:
+
+#!/bin/sh
+
+PUSHOVER_API_URL="https://api.pushover.net/1/messages.json"
+
+PUSHOVER_APPTOKEN="<YOUR_APP_TOKEN>"
+PUSHOVER_USERKEY="<YOUR_USER_KEY>"
+
+if [ "$PAM_TYPE" != "close_session" ]; then
+    MESSAGE="User '$PAM_USER' logged into '`hostname`' from IP address '$PAM_RHOST'"
+    curl -s -F "user=$PUSHOVER_USERKEY" -F "token=$PUSHOVER_APPTOKEN" -F "message=$MESSAGE" $PUSHOVER_API_URL
+fi
+
+
+folgendes mit den Daten von pushover ersetzen:
+--> PUSHOVER_APPTOKEN="<YOUR_APP_TOKEN>"
+	PUSHOVER_USERKEY="<YOUR_USER_KEY>"
+
+dann in folgende Datei offnen:
+
+/etc/pam.d/sshd
+
+und folgendes am Ende anhängen:
+
+# Notify Pushover on successful login
+session optional pam_exec.so seteuid /scripte/pushover/ssh-login.sh
+
+nach einem erneuten ssh login wird man jetzt mit name, host, verbundene IP und sonst. via pushover benachrichtigt.
+

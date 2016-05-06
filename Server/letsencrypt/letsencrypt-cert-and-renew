@@ -1,0 +1,76 @@
+sudo apt-get update
+
+sudo apt-get -y install git bc
+
+sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
+
+sudo service nginx stop
+
+cd /opt/letsencrypt
+
+./letsencrypt-auto certonly --standalone
+
+--->
+
+- gültige Emailadresse
+
+- Akzeptieren
+
+- alle zu verifizierende Domains:
+  example.com www.example.com sub1.example.com (etc.pp)
+  
+<---
+
+Die eigentlichen Zertifikate liegen unter /etc/letsencrypt/archive/Die-Domain
+werden aber (auch bei renew) via Symlink nach /etc/letsencrypt/live/Die-Domain verlinkt.
+
+Zertifikate unter nginx eintragen
+
+sudo service nginx restart
+
+Zertifikate wurden übernommen
+
+Auto Renew:
+
+Ein globales ".well-known" verzeichnis anlegen und für jede domain darauf verweisen:
+
+mkdir /srv/www/.well-known
+
+-------------
+
+in die config der Webseite muss dann noch folgendes mit aufgenommen werden:
+
+
+location ~ /.well-known {
+          alias /srv/www/.well-known/;
+          allow all;
+}
+
+
+danach:
+
+cd /opt/letsencrypt
+
+./letsencrypt-auto certonly -a webroot --agree-tos --renew-by-default --webroot-path=/srv/www/domain.com -d domain.com -d www.domain.com --webroot-path=/srv/www/sub.domain.com -d sub.domain.com
+
+sudo service nginx reload (um die neuen Zertifikate von Nginx laden zu lassen)
+
+
+Das ganze jetzt noch automatisieren:
+
+sudo cp /opt/letsencrypt/examples/cli.ini /usr/local/etc/le-renew-webroot.ini
+
+sudo nano /usr/local/etc/le-renew-webroot.ini
+
+folgendes einfügen:
+
+rsa-key-size = 4096
+email = you@example.com
+domains = example.com, www.example.com
+webroot-path = /usr/share/nginx/html
+
+TEST:
+
+location ~ /.well-known {
+    alias /srv/www/.well-known/;
+}

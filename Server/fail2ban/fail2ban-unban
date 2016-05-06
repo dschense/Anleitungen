@@ -1,0 +1,34 @@
+
+
+Example for SSH in Interactive mode.
+
+type in bash:
+fail2ban-client -i
+
+then in interactive mode type:
+
+status ssh
+
+you ll get like it:
+
+Status for the jail: ssh
+|- Filter
+|  |- Currently failed: 0
+|  |- Total failed: 6
+|  `- File list:    /var/log/auth.log
+`- Actions
+   |- Currently banned: 1
+   |- Total banned: 2
+   `- Banned IP list:   203.113.167.162
+
+then type in interactive mode fail2ban
+
+set ssh unbanip 203.113.167.162
+
+ull get:
+
+203.113.167.162
+
+it`s means no longer 203.113.167.162 in ban list!
+
+Congrats!
