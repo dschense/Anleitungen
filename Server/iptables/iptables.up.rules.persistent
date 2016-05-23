@@ -1,18 +1,3 @@
-*mangle 
-:PREROUTING ACCEPT [0:0] 
-:INPUT ACCEPT [0:0] 
-:FORWARD ACCEPT [0:0] 
-:OUTPUT ACCEPT [0:0] 
-:POSTROUTING ACCEPT [0:0] 
-COMMIT 
-
-*nat 
-:PREROUTING ACCEPT [0:0] 
-:INPUT ACCEPT [0:0] 
-:OUTPUT ACCEPT [0:0] 
-:POSTROUTING ACCEPT [0:0] 
-COMMIT 
-
 *filter 
 :INPUT DROP [0:0] 
 :OUTPUT DROP [0:0] 
@@ -22,110 +7,110 @@ COMMIT
 ### Incoming Traffic 
 ################################################################# 
 
-# Invalid Packet
+### Invalid Packet
 -A INPUT -m state --state INVALID -j DROP
-# Portscan - SYN + RST 
+### Portscan - SYN + RST 
 -A INPUT -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
-# Portscan - SYN + FIN  
+### Portscan - SYN + FIN  
 -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
-# Portscan - FIN + URG + PSH 
+### Portscan - FIN + URG + PSH 
 -A INPUT -p tcp --tcp-flags ALL FIN,URG,PSH -j DROP
-# Portscan - ALL Flags
+### Portscan - ALL Flags
 -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
-# Portscan - nmap Null scan 
+### Portscan - nmap Null scan 
 -A INPUT -p tcp --tcp-flags ALL NONE -j DROP 
-# Portscan - nmap FIN stealth scan
+### Portscan - nmap FIN stealth scan
 -A INPUT -p tcp --tcp-flags ALL FIN -j DROP
-# Portscan - XMAS 
+### Portscan - XMAS 
 -A INPUT -p tcp --tcp-flags ALL URG,ACK,PSH,RST,SYN,FIN -j DROP
 
-# Loopback (localhost) 
+### Loopback (localhost) 
 -A INPUT -i lo -j ACCEPT
-# Established Sessions 
+### Established Sessions 
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-# ICMP - Echo-Request (8)
+### ICMP - Echo-Request (8)
 -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
-# DCHP - Client
+### DCHP - Client
 -A INPUT -i eth0 -p udp --dport 67:68 --sport 67:68 -j ACCEPT 
 
-# SSH - OpenSSH
+### SSH - OpenSSH
 -A INPUT -p tcp --dport 8002 -m state --state NEW -j ACCEPT
-# Ajenti - Webpanel 
+### Ajenti - Webpanel 
 -A INPUT -p tcp --dport 8000 -m state --state NEW -j ACCEPT
-# HTTP - nginx 
+### HTTP - nginx 
 -A INPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
-# HTTPS - nginx 
+### HTTPS - nginx 
 -A INPUT -p tcp --dport 443 -m state --state NEW -j ACCEPT 
-# HTTPS - nginx (phpMyAdmin)
+### HTTPS - nginx (phpMyAdmin)
 -A INPUT -p tcp --dport 8001 -m state --state NEW -j ACCEPT 
-# FTP - Pure-FTP
--A INPUT -p tcp -m multiport --dport 21, 50001:50050 -m state --state NEW -j ACCEPT 
+### FTP - Pure-FTP
+-A INPUT -p tcp -m multiport --dport 21,50001:50050 -m state --state NEW -j ACCEPT 
 
-# SMTP - Exim 
+### SMTP - Exim 
 -A INPUT -p tcp --dport 25 -m state --state NEW -j ACCEPT
-# SMTPS - Exim  
+### SMTPS - Exim  
 -A INPUT -p tcp --dport 465 -m state --state NEW -j ACCEPT
-# POP3 - Courier 
+### POP3 - Courier 
 -A INPUT -p tcp --dport 110 -m state --state NEW -j ACCEPT
-# POP3S - Courier 
+### POP3S - Courier 
 -A INPUT -p tcp --dport 995 -m state --state NEW -j ACCEPT
-# IMAP – Courier 
+### IMAP – Courier 
 -A INPUT -p tcp --dport 143 -m state --state NEW -j ACCEPT
-# IMAPS - Courier 
+### IMAPS - Courier 
 -A INPUT -p tcp --dport 993 -m state --state NEW -j ACCEPT
 
-# Any
+### DROP Any
 -A INPUT -j DROP 
 
 ################################################################# 
 ### Outgoing Traffic 
 ################################################################# 
 
-# Invalid Packet
+### Invalid Packet
 -A OUTPUT -m state --state INVALID -j DROP
 
-# Loopback (localhost)
+### Loopback (localhost)
 -A OUTPUT -o lo -j ACCEPT 
-# Established Sessions
+### Established Sessions
 -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-# ICMP - Echo-Request (8) 
+### ICMP - Echo-Request (8) 
 -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT  
-# DCHP - Client
+### DCHP - Client
 -A OUTPUT -o eth0 -p udp --dport 67:68 --sport 67:68 -j ACCEPT 
 
-# DNS - System
+### DNS - System
 -A OUTPUT -p tcp --dport 53 -m state --state NEW -j ACCEPT 
-# DNS - System
+### DNS - System
 -A OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT
-# NTP - System
+### NTP - System
 -A OUTPUT -p udp --dport 123 -m state --state NEW -j ACCEPT
-# WHOIS - System 
+### WHOIS - System 
 -A OUTPUT -p tcp --dport 43 -m state --state NEW -j ACCEPT
-# HTTP - nginx 
+### HTTP - nginx 
 -A OUTPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
-# HTTPS - nginx
+### HTTPS - nginx
 -A OUTPUT -p tcp --dport 443 -m state --state NEW -j ACCEPT
-# FTP - Pure-FTP 
+### FTP - Pure-FTP 
 -A OUTPUT -p tcp --dport 21 -m state --state NEW -j ACCEPT
-# SMTP - Exim  
+### SMTP - Exim  
 -A OUTPUT -p tcp --dport 25 -m state --state NEW -j ACCEPT
-# SMTPS - Exim 
+### SMTPS - Exim 
 -A OUTPUT -p tcp --dport 465 -m state --state NEW -j ACCEPT
 
-# Any
+### DROP Any
 -A OUTPUT -j DROP 
 
 ################################################################# 
 ### Forward Traffic 
 ################################################################# 
 
-# Established Sessions
+### Established Sessions
 -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT 
 
-# Invalid Packet 
+### Invalid Packet 
 -A FORWARD -m state --state INVALID -j DROP
 
-# Any
+### DROP Any
 -A FORWARD -j DROP 
 
 COMMIT
