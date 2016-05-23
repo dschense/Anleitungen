@@ -1,0 +1,136 @@
+[DEFAULT]
+
+ignoreip = 127.0.0.1/8 
+bantime = 3600 
+maxretry = 3 
+
+backend = auto 
+destemail = root
+
+banaction = iptables-multiport 
+mta = sendmail 
+protocol = tcp 
+chain = INPUT
+
+action_ = %(banaction)s[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+
+action_mw = %(banaction)s[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+
+%(mta)s-whois[name=%(__name__)s, dest="%(destemail)s", protocol="%(protocol)s", chain="%(chain)s"] 
+
+action_mwl = %(banaction)s[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"] 
+
+%(mta)s-whois-lines[name=%(__name__)s, dest="%(destemail)s", logpath=%(logpath)s, chain="%(chain)s"] 
+
+action = %(action_mwl)s 
+
+[fail2ban] 
+enabled = true 
+filter = fail2ban 
+action = iptables-allports[name=fail2ban] 
+		 sendmail-whois[name=fail2ban] 
+logpath = /var/log/fail2ban.log 
+findtime = 604800 
+maxretry = 3 
+bantime = 604800 
+
+[ajenti-login] 
+enabled = true 
+port = 8000 
+filter = ajenti-login 
+logpath = /var/log/ajenti/ajenti.log* 
+maxretry = 3 
+
+[nginx-http-auth] 
+enabled = true 
+port = http,https,8001 
+filter = nginx-http-auth 
+logpath = /var/log/nginx*/*access*.log 
+maxretry = 3 
+
+[nginx-scan] 
+enabled = true 
+port = http,https 
+filter = nginx-scan 
+logpath = /var/log/nginx*/*access*.log 
+findtime = 60 
+maxretry = 6 
+
+[nginx-noscript] 
+enabled = true 
+port = http,https 
+filter = nginx-noscript 
+logpath = /var/log/nginx*/*error*.log 
+maxretry = 3 
+
+[nginx-proxy] 
+enabled = true 
+port = http,https 
+filter = nginx-proxy 
+logpath = /var/log/nginx*/*access*.log 
+maxretry = 0 
+
+[nginx-login] 
+enabled = true 
+port = http,https 
+filter = nginx-login 
+logpath = /var/log/nginx*/*access*.log 
+maxretry = 3 
+
+[nginx-dos] 
+enabled = true 
+port = http,https 
+filter = nginx-dos 
+logpath = /var/log/nginx*/*access*.log
+findtime = 60 
+maxretry = 300 
+
+[xinetd-fail] 
+enabled = false 
+filter = xinetd-fail 
+port = all 
+banaction = iptables-multiport-log 
+logpath = /var/log/daemon.log 
+maxretry = 2 
+
+[exim-login] 
+enabled = true 
+port = smtp,ssmtp 
+filter = exim-login 
+logpath = /var/log/exim*/rejectlog 
+maxretry = 1 
+
+[ssh] 
+enabled = true 
+port = ssh,8002 
+filter = sshd 
+logpath = /var/log/auth.log 
+maxretry = 3 
+
+[ssh-ddos] 
+enabled = true 
+port = ssh,8002 
+filter = sshd-ddos 
+logpath = /var/log/auth.log 
+maxretry = 3 
+
+[pure-ftpd] 
+enabled = true 
+port = ftp,ftp-data,ftps,ftps-data 
+filter = pure-ftpd 
+logpath = /var/log/syslog 
+maxretry = 3 
+
+[exim] 
+enabled = true 
+port = smtp,ssmtp 
+filter = exim 
+logpath = /var/log/exim*/rejectlog 
+maxretry = 1 
+
+[courierauth] 
+enabled = true 
+port = smtp,ssmtp,imap2,imap3,imaps,pop3,pop3s 
+filter = courierlogin 
+logpath = /var/log/mail.log 
+maxretry = 3
