@@ -1,0 +1,27 @@
+Iptables unter Ubuntu 16.04
+
+Pakete:
+
+# Install IPTables Persistent Package 
+apt-get install -y iptables-persistent
+
+# Add netfilter-persistent Startup
+invoke-rc.d netfilter-persistent save
+
+# Stop netfilter-persistent Service
+service netfilter-persistent stop
+
+
+Config:
+
+touch /etc/iptables.up.rules
+gewollte Iptables rules in diese config.
+
+Iptables schreiben
+ptables-restore < /etc/iptables.up.rules
+
+mit persisten auch beim reboot beibehalten:
+iptables-save > /etc/iptables/rules.v4
+
+service netfilter-persistent start
+
