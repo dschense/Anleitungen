@@ -1,0 +1,182 @@
+Archlinux wie gewohnt installieren.
+
+Desktopmanager installieren:
+
+Editor installieren:
+sudo pacman -S leafpad
+
+sudo pacman -S xfce4 lxdm
+
+lxdm einrichten:
+sudo nano /etc/lxdm/lxdm.conf
+ändern:
+autologin=dschense
+session=/usr/bin/startxfce4
+
+reboot
+
+jetzt startet lxdm automatisch xfce4 mit dem autologin
+des Users dschense.
+
+---------------------------------------------------------
+
+Atomount für Wechseldatenträger:
+
+sudo pacman -S thunar-volman gvfs
+änderungen vornehmen:
+Launch Thunar and go to Edit > Preferences
+Under the 'Advanced' tab, check 'Enable Volume Management'
+Click configure and check the following items:
+Mount removable drives when hot-plugged.
+Mount removable media when inserted.
+Also make desired changes (see the example below)
+Here's an example setting for making Amarok play an audio CD.
+ Multimedia - Audio CDs: amarok --cdplay %d
+
+
+Intern Festplatte richtig  einbinden:
+zum ersten mal das passwort zum mounten eingeben
+
+dann terminal:
+sudo blkid
+
+bsp:
+
+/dev/sdb1: LABEL="stuff" UUID="c86da833-5e56-4f73-9014-e8fc99d061fb" TYPE="ext4" PARTUUID="88002c0b-01"
+
+dann in /etc/fstab eintragen:
+
+bsp:
+
+# /dev/sdb1 LABEL=stuff
+UUID=c86da833-5e56-4f73-9014-e8fc99d061fb	/run/media/dschense/stuff/	ext4		rw,relatime,data=ordered	0 	2
+
+reboot
+
+---------------------------------------------------------
+
+Peep-Sound entfernen:
+
+einfach:
+xset b off
+
+(<-- Funktioniert nicht mehr richtig
+$sudo mkdir /etc/modeprobe.d
+$sudo touch /etc/modeprobe.d/pcbeep.conf
+$sudo nano /etc/modeprobe.d/pcbeep.conf
+
+Einfügen:
+blacklist pcspkr
+
+reboot
+/-->)
+
+----------------------------------------------------------
+
+Soundserver installieren:
+
+sudo pacman -S pavucontrol alsa-firmware alsa-utils alsa-plugins pulseaudio-alsa pulseaudio
+
+als installiert alsa und pulseaudio zusammen
+
+Hardwarebuttons mit Anzeige:
+
+xfce4-pulseaudio-plugin
+
+oder
+
+xfce4-volumed
+
+----------------------------------------------------------
+
+NetworkManager:
+
+pacman -S networkmanager
+pacman -S network-manager-applet
+
+systemctl enable NetworkManager.service
+
+----------------------------------------------------------
+
+Backup:
+
+sudo pacman -S borg
+
+
+(<-- GUI
+Backintime liegt im AUR
+Key muss vorher importiert werden:
+
+gpg --keyserver pgp.mit.edu --recv-keys 615F366D944B4826
+wget https://aur.archlinux.org/cgit/aur.git/snapshot/backintime.tar.gz
+tar xvzf backintime.tar.gz
+cd backintime
+makepkg -srci
+/-->)
+
+----------------------------------------------------------
+
+Verwendete Java Version ändern:
+
+sudo archlinux-java status
+(zeigt an welche Versionen installiert sind und welche als default gesetzt ist)
+
+sudo archlinux-java set "name der java version"
+(setzt diese Version als default)
+
+-----------------------------------------------------------
+
+Android Studio benötigte Packete
+
+Pacman -S lib32-glibc lib32-ncurses lib32-libstdc++5 lib32-fontconfig lib32-libxrender lib32-mesa
+
+-----------------------------------------------------------
+
+Backintime / borg :
+
+exclude:
+
+System:
+ 
+/dev/*
+/proc/*
+/sys/*
+/tmp/*
+/run/*
+/mnt/*
+/media/*
+/lost+found
+/var/lib/pacman/sync/*
+/home/*/.thumbnails/*
+/home/*/.cache/mozilla/*
+/home/*/.cache/google-chrome/*
+/home/*/.local/share/Trash/*
+/home/*/.gvfs
+/home/*/.android
+
+home:
+
+/home/*/.thumbnails/*
+/home/*/.cache/mozilla/*
+/home/*/.cache/google-chrome/*
+/home/*/.local/share/Trash/*
+/home/*/.gvfs
+/home/*/.android
+
+----------------------------------------------------------
+
+Android Studio Emulator FIX
+
+/run/media/dschense/stuff/Android/sdk/tools/lib64/libstdc++/libstdc++.so.6
+
+umbennenen da die Datei die mitgeliefert wird kaputt ist.
+Es muss die systemeigene verwendet werden.
+
+libstdc++.so.6.BAK
+
+und schon startet der Emulator.
+
+-----------------------------------------------------------
+
+Befehl um in den Lockscreen zu wechseln (als Tastenkombination)
+/usr/bin/lxdm -c USER_SWITCH
